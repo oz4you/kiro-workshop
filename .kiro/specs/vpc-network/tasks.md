@@ -9,7 +9,7 @@ design.md に基づき、VPC ネットワーク基盤を段階的に実装する
 
 ## タスク一覧
 
-- [ ] 1. プロジェクト基盤の作成（versions.tf, variables.tf） (#3)
+- [x] 1. プロジェクト基盤の作成（versions.tf, variables.tf） (#3) → PR #7
   - **対応要件**: AC-1.1, AC-1.3, C-1, C-4
   - **関連 ADR**: なし
   - **完了条件**:
@@ -18,7 +18,7 @@ design.md に基づき、VPC ネットワーク基盤を段階的に実装する
     - 全変数に description を付与
     - `terraform init` && `terraform validate` が成功する
 
-- [ ] 2. VPC・サブネット・ルーティングの実装（main.tf） (#4)
+- [x] 2. VPC・サブネット・ルーティングの実装（main.tf） (#4) → PR #8
   - **対応要件**: AC-1.1, AC-1.2, AC-2.1, AC-2.2, AC-2.3, AC-2.4, AC-2.5
   - **関連 ADR**: ADR-001, ADR-005, ADR-006
   - **完了条件**:
@@ -30,7 +30,7 @@ design.md に基づき、VPC ネットワーク基盤を段階的に実装する
     - 各サブネットにルートテーブルを `for_each` で関連付け
     - `terraform validate` が成功する
 
-- [ ] 3. VPC エンドポイントとセキュリティグループの実装（endpoints.tf） (#1)
+- [x] 3. VPC エンドポイントとセキュリティグループの実装（endpoints.tf） (#1) → PR #9
   - **対応要件**: AC-3.1, AC-3.2, AC-3.3, AC-3.4, AC-3.5, AC-3.6, AC-5.1, AC-5.2, AC-5.3
   - **関連 ADR**: ADR-002, ADR-007
   - **完了条件**:
@@ -41,7 +41,7 @@ design.md に基づき、VPC ネットワーク基盤を段階的に実装する
     - 0.0.0.0/0 からのインバウンドが存在しないことを確認
     - `terraform validate` が成功する
 
-- [ ] 4. VPC フローログの実装（flow_log.tf） (#2)
+- [x] 4. VPC フローログの実装（flow_log.tf） (#2) → PR #10
   - **対応要件**: AC-4.1, AC-4.2, AC-4.3
   - **関連 ADR**: ADR-003
   - **完了条件**:
@@ -51,7 +51,7 @@ design.md に基づき、VPC ネットワーク基盤を段階的に実装する
     - `aws_flow_log` で VPC 全体の ALL トラフィックを CloudWatch Logs に出力
     - `terraform validate` が成功する
 
-- [ ] 5. Outputs の定義（outputs.tf） (#6)
+- [x] 5. Outputs の定義（outputs.tf） (#6) → PR #11
   - **対応要件**: design.md Outputs セクション
   - **関連 ADR**: なし
   - **完了条件**:
@@ -59,7 +59,7 @@ design.md に基づき、VPC ネットワーク基盤を段階的に実装する
     - 全 output に description を付与
     - `terraform validate` が成功する
 
-- [ ] 6. 統合検証と terraform plan (#5)
+- [x] 6. 統合検証と terraform plan (#5)
   - **対応要件**: 全 AC, NFR-1, NFR-2, NFR-4
   - **関連 ADR**: 全 ADR
   - **完了条件**:
