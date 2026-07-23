@@ -1,0 +1,4 @@
+{
+  "awsAuthRefresh": "aws sso login --profile dev",
+  "enableAllProjectMcpServers": true
+}

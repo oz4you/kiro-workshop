@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>コスト見積もり成果物の作成</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.0/mermaid.min.js"></script>
+<style>
+:root {
+  --fg: #1f2328; --bg: #ffffff; --muted: #59636e;
+  --border: #d1d9e0; --accent: #7c3aed; --code-bg: #f6f8fa;
+  --term-bg: #1e1e1e; --term-fg: #d4d4d4; --term-border: #2d2d2d;
+  --term-titlebar: #323233;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; color: var(--fg); background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+  line-height: 1.75; font-size: 16px;
+}
+.topbar {
+  background: linear-gradient(135deg, #4c1d95, #7c3aed);
+  color: #fff; padding: 10px 24px; font-size: 14px;
+}
+.topbar a { color: #e9d5ff; text-decoration: none; }
+.topbar a:hover { text-decoration: underline; }
+main { max-width: 900px; margin: 0 auto; padding: 32px 24px 80px; }
+h1, h2, h3, h4 { line-height: 1.35; margin-top: 2em; margin-bottom: .6em; }
+h1 { font-size: 1.9em; margin-top: .5em; border-bottom: 2px solid var(--accent); padding-bottom: .3em; }
+h2 { font-size: 1.45em; border-bottom: 1px solid var(--border); padding-bottom: .25em; }
+h3 { font-size: 1.15em; }
+a { color: #0969da; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+th { background: var(--code-bg); }
+tr:nth-child(even) td { background: #fafbfc; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .875em; background: var(--code-bg);
+  padding: .15em .4em; border-radius: 4px;
+}
+pre {
+  background: var(--term-bg); color: var(--term-fg);
+  border: 1px solid var(--term-border);
+  border-radius: 8px; padding: 34px 16px 14px; margin: 1em 0;
+  overflow-x: auto; line-height: 1.6; position: relative;
+  box-shadow: 0 4px 14px rgba(0,0,0,.18);
+}
+pre::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 30px;
+  background: var(--term-titlebar); border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid var(--term-border);
+}
+pre::after {
+  content: ""; position: absolute; top: 12px; left: 14px;
+  width: 10px; height: 10px; border-radius: 50%; background: #ff5f56;
+  box-shadow: 18px 0 0 #ffbd2e, 36px 0 0 #27c93f;
+}
+pre code {
+  background: none; padding: 0; font-size: .85em; color: inherit;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+blockquote {
+  margin: 1em 0; padding: .6em 1em; color: var(--muted);
+  border-left: 4px solid var(--accent); background: #faf5ff; border-radius: 0 8px 8px 0;
+}
+.prompt-box {
+  margin: 1.2em 0; padding: 16px 44px 18px 18px; color: #26215c;
+  background: #faf5ff; border: 1.5px solid #c4b5fd; border-radius: 18px;
+  position: relative;
+}
+.prompt-label {
+  display: inline-block; font-weight: 600; font-size: .78em; color: #fff;
+  background: var(--accent); padding: 3px 12px; border-radius: 999px; margin-bottom: .7em;
+}
+.prompt-box pre {
+  margin: 0; padding: 0; background: none; border: none; box-shadow: none;
+  color: #26215c;
+}
+.prompt-box pre::before, .prompt-box pre::after { content: none; }
+.prompt-box pre code { color: inherit; font-size: .9em; }
+.prompt-send {
+  position: absolute; right: 14px; bottom: 14px; width: 26px; height: 26px;
+  border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center;
+}
+.prompt-send svg { width: 13px; height: 13px; fill: #fff; }
+.mermaid { text-align: center; margin: 1.5em 0; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+footer {
+  max-width: 900px; margin: 0 auto; padding: 16px 24px;
+  color: var(--muted); font-size: 13px; border-top: 1px solid var(--border);
+}
+</style>
+</head>
+<body>
+<div class="topbar"><a href="../../../README.html">&larr; ワークショップトップ</a></div>
+<main>
+<hr />
+<p>name: cost-estimate
+description: 対象 Step の Terraform コードからコスト見積もり成果物(cost-estimate.md)を作成する。引数に Step 名を渡す(例 /cost-estimate step3)</p>
+<hr />
+<h1 id="_1">コスト見積もり成果物の作成</h1>
+<p>指定された Step の <code>terraform/</code> を読み、月額コスト見積もりを <code>&lt;step ディレクトリ&gt;/cost-estimate.md</code> として出力する。</p>
+<h2 id="_2">手順</h2>
+<ol>
+<li>対象 Step の <code>.tf</code> ファイルを読み、<strong>課金対象リソースを漏れなく列挙</strong>する(無料リソースも「無料」と明記して漏れがないことを示す)</li>
+<li>単価は<strong>推測せず AWS Pricing MCP サーバで取得</strong>する(リージョンは ap-northeast-1)。取得できない場合はその旨を明記し、公式料金ページの URL を記載する</li>
+<li>従量部分(データ転送、リクエスト数、トークン数等)は前提を置いて計算し、<strong>前提を必ず成果物に明記</strong>する</li>
+<li>成果物を作成し、ユーザーに要約(合計月額と支配的なコスト要因 Top3)を報告する</li>
+</ol>
+<h2 id="cost-estimatemd">成果物フォーマット(cost-estimate.md)</h2>
+<pre><code class="language-markdown"># Step N コスト見積もり
+
+- 見積もり日 / リージョン / 為替前提
+- 単価の取得方法(Pricing MCP / 料金ページ URL)
+
+## 前提条件
+(稼働時間、AZ 数、トラフィック、リクエスト数などの仮定)
+
+## リソース別月額試算
+| リソース | 数量 | 単価(根拠) | 月額 |
+(無料のものも「$0」で記載)
+
+## シナリオ別合計
+| シナリオ | 概算 |
+| ハンズオン実施のみ(約2時間) | $X |
+| 消し忘れて1ヶ月放置 | $Y |
+
+## コスト削減の選択肢
+(構成変更による削減案と、そのトレードオフ)
+
+## 注意
+(料金改定の可能性、無料枠の適用条件)
+</code></pre>
+<h2 id="_3">注意</h2>
+<ul>
+<li>見積もりは意思決定用の概算であり、請求額を保証しない旨を必ず記載する</li>
+<li>「消し忘れシナリオ」は destroy の動機付けとして必ず含める</li>
+<li>Step 0 の spec 駆動フローと併用する場合、合計月額を requirements.md のコスト上限と突き合わせ、超過していれば警告する</li>
+</ul>
+</main>
+<footer>Kiro CLI × Terraform × AWS 実践ワークショップ</footer>
+<script>
+hljs.highlightAll();
+mermaid.initialize({ startOnLoad: true, theme: "default" });
+</script>
+</body>
+</html>

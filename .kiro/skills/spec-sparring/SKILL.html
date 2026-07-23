@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spec 壁打ちセッション</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.0/mermaid.min.js"></script>
+<style>
+:root {
+  --fg: #1f2328; --bg: #ffffff; --muted: #59636e;
+  --border: #d1d9e0; --accent: #7c3aed; --code-bg: #f6f8fa;
+  --term-bg: #1e1e1e; --term-fg: #d4d4d4; --term-border: #2d2d2d;
+  --term-titlebar: #323233;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; color: var(--fg); background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+  line-height: 1.75; font-size: 16px;
+}
+.topbar {
+  background: linear-gradient(135deg, #4c1d95, #7c3aed);
+  color: #fff; padding: 10px 24px; font-size: 14px;
+}
+.topbar a { color: #e9d5ff; text-decoration: none; }
+.topbar a:hover { text-decoration: underline; }
+main { max-width: 900px; margin: 0 auto; padding: 32px 24px 80px; }
+h1, h2, h3, h4 { line-height: 1.35; margin-top: 2em; margin-bottom: .6em; }
+h1 { font-size: 1.9em; margin-top: .5em; border-bottom: 2px solid var(--accent); padding-bottom: .3em; }
+h2 { font-size: 1.45em; border-bottom: 1px solid var(--border); padding-bottom: .25em; }
+h3 { font-size: 1.15em; }
+a { color: #0969da; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+th { background: var(--code-bg); }
+tr:nth-child(even) td { background: #fafbfc; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .875em; background: var(--code-bg);
+  padding: .15em .4em; border-radius: 4px;
+}
+pre {
+  background: var(--term-bg); color: var(--term-fg);
+  border: 1px solid var(--term-border);
+  border-radius: 8px; padding: 34px 16px 14px; margin: 1em 0;
+  overflow-x: auto; line-height: 1.6; position: relative;
+  box-shadow: 0 4px 14px rgba(0,0,0,.18);
+}
+pre::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 30px;
+  background: var(--term-titlebar); border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid var(--term-border);
+}
+pre::after {
+  content: ""; position: absolute; top: 12px; left: 14px;
+  width: 10px; height: 10px; border-radius: 50%; background: #ff5f56;
+  box-shadow: 18px 0 0 #ffbd2e, 36px 0 0 #27c93f;
+}
+pre code {
+  background: none; padding: 0; font-size: .85em; color: inherit;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+blockquote {
+  margin: 1em 0; padding: .6em 1em; color: var(--muted);
+  border-left: 4px solid var(--accent); background: #faf5ff; border-radius: 0 8px 8px 0;
+}
+.prompt-box {
+  margin: 1.2em 0; padding: 16px 44px 18px 18px; color: #26215c;
+  background: #faf5ff; border: 1.5px solid #c4b5fd; border-radius: 18px;
+  position: relative;
+}
+.prompt-label {
+  display: inline-block; font-weight: 600; font-size: .78em; color: #fff;
+  background: var(--accent); padding: 3px 12px; border-radius: 999px; margin-bottom: .7em;
+}
+.prompt-box pre {
+  margin: 0; padding: 0; background: none; border: none; box-shadow: none;
+  color: #26215c;
+}
+.prompt-box pre::before, .prompt-box pre::after { content: none; }
+.prompt-box pre code { color: inherit; font-size: .9em; }
+.prompt-send {
+  position: absolute; right: 14px; bottom: 14px; width: 26px; height: 26px;
+  border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center;
+}
+.prompt-send svg { width: 13px; height: 13px; fill: #fff; }
+.mermaid { text-align: center; margin: 1.5em 0; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+footer {
+  max-width: 900px; margin: 0 auto; padding: 16px 24px;
+  color: var(--muted); font-size: 13px; border-top: 1px solid var(--border);
+}
+</style>
+</head>
+<body>
+<div class="topbar"><a href="../../../README.html">&larr; ワークショップトップ</a></div>
+<main>
+<hr />
+<p>name: spec-sparring
+description: 壁打ち(グリルミー)スタイルの設計セッションを開始し、requirements.md / design.md / tasks.md を作成する。引数に機能名を渡す(例 /spec-sparring vpc-network)</p>
+<hr />
+<h1 id="spec">Spec 壁打ちセッション</h1>
+<p>引数で渡された機能名(なければユーザーに確認)について、壁打ちインタビューで Spec 成果物を作成する。</p>
+<h2 id="_1">進行ルール(厳守)</h2>
+<ol>
+<li><strong>一度に1問だけ質問する。</strong> 複数の質問を並べない</li>
+<li>回答が曖昧・矛盾している場合は、具体例や選択肢を示して深掘りしてから次へ進む</li>
+<li>以下の観点を順に押さえる:
+   - 目的とゴール(何のために、成功の定義)
+   - 利用者・利用シーン
+   - 機能範囲(必須/任意)
+   - 非機能要件(セキュリティ、可用性、性能、コスト上限)
+   - 制約(リージョン、既存資産、閉域要件など)
+   - スコープ外の明示</li>
+<li>全論点が出揃ったら<strong>要点を復唱してユーザーの合意を得る</strong></li>
+<li>合意後に成果物を順に作成。<strong>各ファイル作成後にレビュー承認を待ってから次へ進む</strong></li>
+</ol>
+<h2 id="kirospecs">成果物(.kiro/specs/&lt;機能名&gt;/ に作成)</h2>
+<h3 id="requirementsmd">requirements.md</h3>
+<ul>
+<li>ユーザーストーリー形式の要件</li>
+<li>受入条件は EARS 形式: <code>WHEN &lt;条件&gt; THEN システムは &lt;動作&gt; SHALL する</code></li>
+<li>スコープ外セクションを必ず含める</li>
+</ul>
+<h3 id="designmd">design.md</h3>
+<ul>
+<li>アーキテクチャ概要と Mermaid 構成図</li>
+<li>Terraform リソース構成(ファイル分割案)</li>
+<li><strong>設計決定の記録</strong>: 検討した代替案と却下理由を表形式で(後で <code>/verify-adr</code> が ADR 化に使う)</li>
+<li>steering(terraform-standards.md 等)との整合を確認した旨を明記</li>
+</ul>
+<h3 id="tasksmd">tasks.md</h3>
+<ul>
+<li>番号付き実装タスクのチェックリスト(<code>- [ ] 1. ...</code>)</li>
+<li>各タスクに: 対応する要件番号(トレーサビリティ)、完了条件、想定成果物</li>
+<li>GitHub Issue 1件に対応する粒度(30〜90分程度)に分割</li>
+</ul>
+<h2 id="_2">注意</h2>
+<ul>
+<li>技術仕様は推測せず Terraform MCP / AWS Documentation MCP で確認する</li>
+<li>コスト影響のあるリソースは概算を requirements.md に明記する</li>
+</ul>
+</main>
+<footer>Kiro CLI × Terraform × AWS 実践ワークショップ</footer>
+<script>
+hljs.highlightAll();
+mermaid.initialize({ startOnLoad: true, theme: "default" });
+</script>
+</body>
+</html>

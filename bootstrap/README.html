@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bootstrap: Terraform state 管理基盤</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.0/mermaid.min.js"></script>
+<style>
+:root {
+  --fg: #1f2328; --bg: #ffffff; --muted: #59636e;
+  --border: #d1d9e0; --accent: #7c3aed; --code-bg: #f6f8fa;
+  --term-bg: #1e1e1e; --term-fg: #d4d4d4; --term-border: #2d2d2d;
+  --term-titlebar: #323233;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; color: var(--fg); background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+  line-height: 1.75; font-size: 16px;
+}
+.topbar {
+  background: linear-gradient(135deg, #4c1d95, #7c3aed);
+  color: #fff; padding: 10px 24px; font-size: 14px;
+}
+.topbar a { color: #e9d5ff; text-decoration: none; }
+.topbar a:hover { text-decoration: underline; }
+main { max-width: 900px; margin: 0 auto; padding: 32px 24px 80px; }
+h1, h2, h3, h4 { line-height: 1.35; margin-top: 2em; margin-bottom: .6em; }
+h1 { font-size: 1.9em; margin-top: .5em; border-bottom: 2px solid var(--accent); padding-bottom: .3em; }
+h2 { font-size: 1.45em; border-bottom: 1px solid var(--border); padding-bottom: .25em; }
+h3 { font-size: 1.15em; }
+a { color: #0969da; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+th { background: var(--code-bg); }
+tr:nth-child(even) td { background: #fafbfc; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .875em; background: var(--code-bg);
+  padding: .15em .4em; border-radius: 4px;
+}
+pre {
+  background: var(--term-bg); color: var(--term-fg);
+  border: 1px solid var(--term-border);
+  border-radius: 8px; padding: 34px 16px 14px; margin: 1em 0;
+  overflow-x: auto; line-height: 1.6; position: relative;
+  box-shadow: 0 4px 14px rgba(0,0,0,.18);
+}
+pre::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 30px;
+  background: var(--term-titlebar); border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid var(--term-border);
+}
+pre::after {
+  content: ""; position: absolute; top: 12px; left: 14px;
+  width: 10px; height: 10px; border-radius: 50%; background: #ff5f56;
+  box-shadow: 18px 0 0 #ffbd2e, 36px 0 0 #27c93f;
+}
+pre code {
+  background: none; padding: 0; font-size: .85em; color: inherit;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+blockquote {
+  margin: 1em 0; padding: .6em 1em; color: var(--muted);
+  border-left: 4px solid var(--accent); background: #faf5ff; border-radius: 0 8px 8px 0;
+}
+.prompt-box {
+  margin: 1.2em 0; padding: 16px 44px 18px 18px; color: #26215c;
+  background: #faf5ff; border: 1.5px solid #c4b5fd; border-radius: 18px;
+  position: relative;
+}
+.prompt-label {
+  display: inline-block; font-weight: 600; font-size: .78em; color: #fff;
+  background: var(--accent); padding: 3px 12px; border-radius: 999px; margin-bottom: .7em;
+}
+.prompt-box pre {
+  margin: 0; padding: 0; background: none; border: none; box-shadow: none;
+  color: #26215c;
+}
+.prompt-box pre::before, .prompt-box pre::after { content: none; }
+.prompt-box pre code { color: inherit; font-size: .9em; }
+.prompt-send {
+  position: absolute; right: 14px; bottom: 14px; width: 26px; height: 26px;
+  border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center;
+}
+.prompt-send svg { width: 13px; height: 13px; fill: #fff; }
+.mermaid { text-align: center; margin: 1.5em 0; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+footer {
+  max-width: 900px; margin: 0 auto; padding: 16px 24px;
+  color: var(--muted); font-size: 13px; border-top: 1px solid var(--border);
+}
+</style>
+</head>
+<body>
+<div class="topbar"><a href="../README.html">&larr; ワークショップトップ</a></div>
+<main>
+<h1 id="bootstrap-terraform-state">Bootstrap: Terraform state 管理基盤</h1>
+<p>全 Step の Terraform state は、ここで作成する <strong>1つの S3 バケット</strong>で集中管理します(Step ごとに <code>key</code> を分離)。</p>
+<h2 id="_1">なぜシェルスクリプトなのか</h2>
+<p>state バケットは「Terraform が動くための前提」です。Terraform 自身で作ると「そのバケットの state は誰が管理するのか」という鶏と卵の問題が発生します。本ワークショップでは、この境界を <strong>冪等なシェルスクリプト</strong>で明示的に切ります。</p>
+<h2 id="_2">使い方</h2>
+<pre><code class="language-bash">cd bootstrap
+./create-state-bucket.sh          # ap-northeast-1 に作成
+</code></pre>
+<p>実行すると以下が行われます:</p>
+<ol>
+<li><code>kiro-ws-dev-tfstate-&lt;アカウントID&gt;</code> バケットを作成(存在すればスキップ)</li>
+<li>バージョニング / SSE-KMS 暗号化 / パブリックアクセスブロックを設定</li>
+<li>リポジトリ直下に <strong><code>backend.hcl</code></strong> を生成(バケット名とリージョン)</li>
+</ol>
+<p>各 Step ではこの <code>backend.hcl</code> を使って初期化します:</p>
+<pre><code class="language-bash">cd step1-basic-vpc/terraform
+terraform init -backend-config=../../backend.hcl
+</code></pre>
+<p>各 Step の <code>backend.tf</code> には <code>key = "stepN/terraform.tfstate"</code> と <code>use_lockfile = true</code>(S3 ネイティブロック、Terraform 1.10+)だけを書き、バケット名は <code>backend.hcl</code> から注入します。</p>
+<h2 id="_3">削除(ワークショップ完全終了時)</h2>
+<pre><code class="language-bash">./delete-state-bucket.sh    # 全バージョン削除 + バケット削除(要 yes 入力)
+</code></pre>
+<p><strong>注意:</strong> 全 Step の state が失われます。各 Step のリソースを <code>terraform destroy</code> してから実行してください。</p>
+<h2 id="_4">学習ポイント</h2>
+<ul>
+<li><code>backend.hcl</code> は環境固有ファイルなのでコミットしない(<code>.gitignore</code> 済み)。CI では GitHub Actions の Variables から同等の設定を生成します(Step 2 参照)</li>
+<li>「どこまでを IaC にし、どこからを bootstrap にするか」という境界設計は、Kiro に「state バケットを Terraform 管理にする場合の選択肢と比較して」と聞いてみると理解が深まります</li>
+</ul>
+</main>
+<footer>Kiro CLI × Terraform × AWS 実践ワークショップ</footer>
+<script>
+hljs.highlightAll();
+mermaid.initialize({ startOnLoad: true, theme: "default" });
+</script>
+</body>
+</html>

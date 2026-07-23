@@ -1,0 +1,19 @@
+# 環境固有(bootstrap が生成)
+backend.hcl
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# その他
+.DS_Store
+dist/

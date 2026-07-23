@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>設計決定の検証と ADR 記録</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.0/mermaid.min.js"></script>
+<style>
+:root {
+  --fg: #1f2328; --bg: #ffffff; --muted: #59636e;
+  --border: #d1d9e0; --accent: #7c3aed; --code-bg: #f6f8fa;
+  --term-bg: #1e1e1e; --term-fg: #d4d4d4; --term-border: #2d2d2d;
+  --term-titlebar: #323233;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; color: var(--fg); background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+  line-height: 1.75; font-size: 16px;
+}
+.topbar {
+  background: linear-gradient(135deg, #4c1d95, #7c3aed);
+  color: #fff; padding: 10px 24px; font-size: 14px;
+}
+.topbar a { color: #e9d5ff; text-decoration: none; }
+.topbar a:hover { text-decoration: underline; }
+main { max-width: 900px; margin: 0 auto; padding: 32px 24px 80px; }
+h1, h2, h3, h4 { line-height: 1.35; margin-top: 2em; margin-bottom: .6em; }
+h1 { font-size: 1.9em; margin-top: .5em; border-bottom: 2px solid var(--accent); padding-bottom: .3em; }
+h2 { font-size: 1.45em; border-bottom: 1px solid var(--border); padding-bottom: .25em; }
+h3 { font-size: 1.15em; }
+a { color: #0969da; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+th { background: var(--code-bg); }
+tr:nth-child(even) td { background: #fafbfc; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .875em; background: var(--code-bg);
+  padding: .15em .4em; border-radius: 4px;
+}
+pre {
+  background: var(--term-bg); color: var(--term-fg);
+  border: 1px solid var(--term-border);
+  border-radius: 8px; padding: 34px 16px 14px; margin: 1em 0;
+  overflow-x: auto; line-height: 1.6; position: relative;
+  box-shadow: 0 4px 14px rgba(0,0,0,.18);
+}
+pre::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 30px;
+  background: var(--term-titlebar); border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid var(--term-border);
+}
+pre::after {
+  content: ""; position: absolute; top: 12px; left: 14px;
+  width: 10px; height: 10px; border-radius: 50%; background: #ff5f56;
+  box-shadow: 18px 0 0 #ffbd2e, 36px 0 0 #27c93f;
+}
+pre code {
+  background: none; padding: 0; font-size: .85em; color: inherit;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+blockquote {
+  margin: 1em 0; padding: .6em 1em; color: var(--muted);
+  border-left: 4px solid var(--accent); background: #faf5ff; border-radius: 0 8px 8px 0;
+}
+.prompt-box {
+  margin: 1.2em 0; padding: 16px 44px 18px 18px; color: #26215c;
+  background: #faf5ff; border: 1.5px solid #c4b5fd; border-radius: 18px;
+  position: relative;
+}
+.prompt-label {
+  display: inline-block; font-weight: 600; font-size: .78em; color: #fff;
+  background: var(--accent); padding: 3px 12px; border-radius: 999px; margin-bottom: .7em;
+}
+.prompt-box pre {
+  margin: 0; padding: 0; background: none; border: none; box-shadow: none;
+  color: #26215c;
+}
+.prompt-box pre::before, .prompt-box pre::after { content: none; }
+.prompt-box pre code { color: inherit; font-size: .9em; }
+.prompt-send {
+  position: absolute; right: 14px; bottom: 14px; width: 26px; height: 26px;
+  border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center;
+}
+.prompt-send svg { width: 13px; height: 13px; fill: #fff; }
+.mermaid { text-align: center; margin: 1.5em 0; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+footer {
+  max-width: 900px; margin: 0 auto; padding: 16px 24px;
+  color: var(--muted); font-size: 13px; border-top: 1px solid var(--border);
+}
+</style>
+</head>
+<body>
+<div class="topbar"><a href="../../../README.html">&larr; ワークショップトップ</a></div>
+<main>
+<hr />
+<p>name: verify-adr
+description: 壁打ちで決まった設計決定を MCP で検証し、結果を docs/adr/ に ADR として記録する。引数に spec 名を渡す(例 /verify-adr vpc-network)</p>
+<hr />
+<h1 id="adr">設計決定の検証と ADR 記録</h1>
+<p>指定された spec(<code>.kiro/specs/&lt;機能名&gt;/design.md</code>)の「設計決定の記録」を読み、各決定を検証して ADR に記録する。</p>
+<h2 id="_1">手順</h2>
+<ol>
+<li><code>design.md</code> から設計決定(採用案・代替案・却下理由)を抽出し、一覧をユーザーに提示する</li>
+<li>各決定について以下を<strong>実際にツールで検証</strong>する(推測禁止):
+   - <strong>実在性</strong>: 使用予定の Terraform リソース・引数が最新プロバイダに存在するか(Terraform MCP)
+   - <strong>ベストプラクティス適合</strong>: AWS 公式ドキュメント・Well-Architected 観点での妥当性(AWS Documentation MCP / Well-Architected MCP)
+   - <strong>steering 適合</strong>: <code>.kiro/steering/</code> の規約(セキュリティ・命名・コスト)に反しないか</li>
+<li>検証結果(合格/条件付き/不合格と根拠)をユーザーに報告する</li>
+<li>ユーザー承認後、<code>docs/adr/template.md</code> の形式で <code>docs/adr/NNN-&lt;題名&gt;.md</code> を作成する
+   - NNN は既存 ADR の最大番号 + 1(ゼロ埋め3桁)
+   - 1つの ADR には1つの決定だけを書く(複数決定は複数 ADR)</li>
+<li>対応する spec の design.md に ADR へのリンクを追記する</li>
+</ol>
+<h2 id="adr_1">ADR に必ず含めること</h2>
+<ul>
+<li>壁打ちで出た論点(なぜこの決定が必要になったか)</li>
+<li>検証方法と結果(どの MCP ツール・ドキュメントで何を確認したか)</li>
+<li>採用案と却下した代替案(却下理由付き)</li>
+<li>決定の帰結(将来の制約、再検討のトリガー)</li>
+</ul>
+<h2 id="_2">注意</h2>
+<ul>
+<li>検証で問題が見つかった場合は ADR を書く前にユーザーへ差し戻す(設計の修正が先)</li>
+<li>ADR は追記のみ。過去の ADR を書き換えない(取り消す場合は新しい ADR で Supersede する)</li>
+</ul>
+</main>
+<footer>Kiro CLI × Terraform × AWS 実践ワークショップ</footer>
+<script>
+hljs.highlightAll();
+mermaid.initialize({ startOnLoad: true, theme: "default" });
+</script>
+</body>
+</html>

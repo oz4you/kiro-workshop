@@ -1,0 +1,54 @@
+{
+  "name": "iac-terraform-kiro",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/terraform:1": {
+      "version": "latest",
+      "tflint": "latest"
+    },
+    "ghcr.io/devcontainers/features/aws-cli:1": {
+      "version": "latest"
+    },
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {},
+    "ghcr.io/devcontainers/features/go:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "latest"
+    }
+  },
+  "mounts": [
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.aws-devcontainer,target=/home/vscode/.aws,type=bind",
+    "source=kiro-cli-state,target=/home/vscode/.kiro,type=volume",
+    "source=kiro-cli-share,target=/home/vscode/.local/share,type=volume",
+    "source=kiro-cli-bin,target=/home/vscode/.local/bin,type=volume",
+    "source=claude-code-state,target=/home/vscode/.claude,type=volume"
+  ],
+  "postCreateCommand": "bash .devcontainer/postCreate.sh",
+  "remoteUser": "vscode",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "hashicorp.terraform",
+        "hashicorp.hcl",
+        "ms-azuretools.vscode-docker",
+        "anthropic.claude-code"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  "remoteEnv": {
+    "AWS_PROFILE": "dev",
+    "CLAUDE_CODE_USE_BEDROCK": "1",
+    "AWS_REGION": "ap-northeast-1",
+    "ANTHROPIC_MODEL": "apac.anthropic.claude-sonnet-5",
+    "ANTHROPIC_SMALL_FAST_MODEL": "apac.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "DISABLE_AUTOUPDATER": "1",
+    "CLAUDE_CONFIG_DIR": "/home/vscode/.claude",
+    "GITHUB_PERSONAL_ACCESS_TOKEN": "${localEnv:GITHUB_TOKEN}"
+  }
+}
